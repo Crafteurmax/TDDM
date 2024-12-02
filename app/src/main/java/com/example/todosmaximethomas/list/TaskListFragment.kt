@@ -23,6 +23,10 @@ class TaskListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         adapter.submitList(taskList)
+        adapter.onClickDelete = { task ->
+            taskList = taskList.filter { it.id != task.id }
+            adapter.refreshAdapter(taskList)
+        }
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_task_list, container, false)
     }

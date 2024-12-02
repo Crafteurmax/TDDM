@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todosmaximethomas.R
@@ -32,15 +33,22 @@ class TaskListAdapter : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(MyTask
     inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private var textViewTitle = itemView.findViewById<TextView>(R.id.task_title)
         private var textViewDescription = itemView.findViewById<TextView>(R.id.task_description)
+        private var textViewDel = itemView.findViewById<ImageButton>(R.id.imageButton)
 
         fun bind(task : Task) {
             textViewTitle.text = task.title
             textViewDescription.text = task.description
+
+            textViewDel.setOnClickListener {
+                onClickDelete(task)
+            }
+
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_task, parent, false)
+
         return TaskViewHolder(itemView)
     }
 

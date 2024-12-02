@@ -22,5 +22,5 @@
         android:id="@+id/imageButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:srcCompat="@android:drawable/ic_menu_delete" />
+        android:src="@drawable/baseline_delete_24" />
 </LinearLayout>
