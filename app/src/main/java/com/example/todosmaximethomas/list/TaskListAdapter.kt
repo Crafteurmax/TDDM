@@ -8,11 +8,25 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todosmaximethomas.R
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+
+
+
+object MyTasksDiffCallback : DiffUtil.ItemCallback<Task>() {
+    override fun areItemsTheSame(oldTask: Task, newTask: Task) : Boolean {
+        return oldTask.id == newTask.id
+    }
+
+    override fun areContentsTheSame(oldTask: Task, newTask: Task) : Boolean {
+        return (oldTask.title == newTask.title) && (oldTask.description == newTask.description)
+    }
+}
 
 // l'IDE va râler ici car on a pas encore implémenté les méthodes nécessaires
-class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskViewHolder>() {
+class TaskListAdapter : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(MyTasksDiffCallback) {
 
-    var currentList: List<Task> = emptyList<Task>()
+    var onClickDelete: (Task) -> Unit = {}
 
     // on utilise `inner` ici afin d'avoir accès aux propriétés de l'adapter directement
     inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -30,11 +44,14 @@ class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskViewHolder>() {
         return TaskViewHolder(itemView)
     }
 
-    override fun getItemCount(): Int {
-        return currentList.size
-    }
-
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         holder.bind(currentList[position])
     }
+
+    fun refreshAdapter(newList: List<Task>) {
+        submitList(newList)
+        notifyDataSetChanged()
+    }
+
+
 }

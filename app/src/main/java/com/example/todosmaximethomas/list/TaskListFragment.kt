@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todosmaximethomas.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.util.UUID
 
 class TaskListFragment : Fragment() {
     private var taskList = listOf(
@@ -20,7 +22,7 @@ class TaskListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        adapter.currentList = taskList
+        adapter.submitList(taskList)
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_task_list, container, false)
     }
@@ -29,5 +31,17 @@ class TaskListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.adapter = this.adapter
+
+        val fab = view.findViewById<FloatingActionButton>(R.id.floatingActionButton7)
+        fab.setOnClickListener {
+            addTask()
+        }
+    }
+
+    fun addTask() {
+        // Instanciation d'un objet task avec des données préremplies:
+        val newTask = Task(id = UUID.randomUUID().toString(), title = "Task ${taskList.size + 1}")
+        taskList = taskList + newTask
+        adapter.refreshAdapter(taskList)
     }
 }
