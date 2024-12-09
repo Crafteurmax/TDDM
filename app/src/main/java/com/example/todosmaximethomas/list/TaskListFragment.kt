@@ -1,14 +1,16 @@
 package com.example.todosmaximethomas.list
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todosmaximethomas.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.util.UUID
+import detail.ui.theme.DetailActivity
 
 class TaskListFragment : Fragment() {
     private var taskList = listOf(
@@ -18,11 +20,34 @@ class TaskListFragment : Fragment() {
     )
     private val adapter = TaskListAdapter()
 
+    private val createTask = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        result ->
+
+        val newTask = result.data?.getSerializableExtra(Task.TASK_KEY) as Task?
+        taskList = taskList + newTask!!
+        adapter.refreshAdapter(taskList)
+    }
+
+    private val editTask = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            result ->
+        val task = result.data?.getSerializableExtra(Task.TASK_KEY) as Task?
+
+        if (task != null) {
+            taskList = taskList.map { if (it.id == task.id) task else it }
+            adapter.refreshAdapter(taskList)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         adapter.submitList(taskList)
+        adapter.onClickEdit = {task ->
+            val intent = Intent(context, DetailActivity::class.java)
+            intent.putExtra(Task.TASK_KEY, task)
+            editTask.launch(intent)
+        }
         adapter.onClickDelete = { task ->
             taskList = taskList.filter { it.id != task.id }
             adapter.refreshAdapter(taskList)
@@ -41,11 +66,10 @@ class TaskListFragment : Fragment() {
             addTask()
         }
     }
+    
+    private fun addTask() {
+        val intent = Intent(context, DetailActivity::class.java)
 
-    fun addTask() {
-        // Instanciation d'un objet task avec des données préremplies:
-        val newTask = Task(id = UUID.randomUUID().toString(), title = "Task ${taskList.size + 1}")
-        taskList = taskList + newTask
-        adapter.refreshAdapter(taskList)
+        createTask.launch(intent)
     }
 }

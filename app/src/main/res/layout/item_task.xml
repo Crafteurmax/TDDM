@@ -19,7 +19,13 @@
         android:layout_height="wrap_content" />
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/editButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_edit_24" />
+
+    <ImageButton
+        android:id="@+id/deleteButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:src="@drawable/baseline_delete_24" />
