@@ -1,5 +1,6 @@
 package detail.ui.theme
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,7 +30,16 @@ class DetailActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val initialTask = intent.getSerializableExtra(Task.TASK_KEY) as Task?
+        var initialTask = intent.getSerializableExtra(Task.TASK_KEY) as Task?
+
+        val sharedText = intent?.getStringExtra(Intent.EXTRA_TEXT) ?: ""
+        if (sharedText.isNotEmpty()) {
+            initialTask = initialTask?.copy(title = sharedText) ?: Task(
+                id = UUID.randomUUID().toString(),
+                title = sharedText,
+                description = ""
+            )
+        }
 
         enableEdgeToEdge()
         setContent {

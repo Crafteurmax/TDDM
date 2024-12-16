@@ -24,12 +24,13 @@ object MyTasksDiffCallback : DiffUtil.ItemCallback<Task>() {
     }
 }
 
+interface TaskListListener {
+    fun onClickDelete(task: Task)
+    fun onClickEdit(task: Task)
+}
+
 // l'IDE va râler ici car on a pas encore implémenté les méthodes nécessaires
-class TaskListAdapter : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(MyTasksDiffCallback) {
-
-    var onClickDelete: (Task) -> Unit = {}
-
-    var onClickEdit: (Task) -> Unit = {}
+class TaskListAdapter(val listener: TaskListListener) : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(MyTasksDiffCallback) {
 
     // on utilise `inner` ici afin d'avoir accès aux propriétés de l'adapter directement
     inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -43,10 +44,10 @@ class TaskListAdapter : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(MyTask
             textViewDescription.text = task.description
 
             textViewEdit.setOnClickListener {
-                onClickEdit(task)
+                listener.onClickEdit(task)
             }
             textViewDel.setOnClickListener {
-                onClickDelete(task)
+                listener.onClickDelete(task)
             }
         }
     }
