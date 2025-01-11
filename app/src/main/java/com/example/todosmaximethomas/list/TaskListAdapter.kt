@@ -44,10 +44,10 @@ class TaskListAdapter(val listener: TaskListListener) : ListAdapter<Task, TaskLi
             textViewDescription.text = task.description
 
             textViewEdit.setOnClickListener {
-                listener.onClickDelete(task)
+                listener.onClickEdit(task)
             }
             textViewDel.setOnClickListener {
-                listener.onClickEdit(task)
+                listener.onClickDelete(task)
             }
         }
     }

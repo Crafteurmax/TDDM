@@ -6,34 +6,31 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import coil3.load
 import com.example.todosmaximethomas.R
+import user.UserActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import data.Api
 import detail.ui.theme.DetailActivity
 import kotlinx.coroutines.launch
+import coil3.request.error
 
 class TaskListFragment : Fragment() {
-    private var taskList = listOf(
-        Task(id = "id_1", title = "Task 1", description = "description 1"),
-        Task(id = "id_2", title = "Task 2", description = "description 2"),
-        Task(id = "id_3", title = "Task 3", description = "description 3")
-    )
-
-    val adapterListener : TaskListListener = object : TaskListListener {
+    private val adapterListener : TaskListListener = object : TaskListListener {
         override fun onClickDelete(task: Task) {
-            val intent = Intent(context, DetailActivity::class.java)
-            intent.putExtra(Task.TASK_KEY, task)
-            editTask.launch(intent)
+            viewModel.remove(task)
         }
 
         override fun onClickEdit(task: Task) {
-            taskList = taskList.filter { it.id != task.id }
-            adapter.refreshAdapter(taskList)
+            val intent = Intent(context, DetailActivity::class.java)
+            intent.putExtra(Task.TASK_KEY, task)
+            editTask.launch(intent)
         }
     }
     private val adapter = TaskListAdapter(adapterListener)
@@ -46,8 +43,7 @@ class TaskListFragment : Fragment() {
         val newTask = result.data?.getSerializableExtra(Task.TASK_KEY) as Task?
 
         if (newTask != null) {
-            taskList = taskList + newTask
-            adapter.refreshAdapter(taskList)
+            viewModel.add(newTask)
         }
     }
 
@@ -56,8 +52,7 @@ class TaskListFragment : Fragment() {
         val task = result.data?.getSerializableExtra(Task.TASK_KEY) as Task?
 
         if (task != null) {
-            taskList = taskList.map { if (it.id == task.id) task else it }
-            adapter.refreshAdapter(taskList)
+            viewModel.edit(task)
         }
     }
 
@@ -65,7 +60,6 @@ class TaskListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        adapter.submitList(taskList)
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_task_list, container, false)
     }
@@ -84,8 +78,7 @@ class TaskListFragment : Fragment() {
             viewModel.tasksStateFlow.collect { newList ->
                 // cette lambda est exécutée à chaque fois que la liste est mise à jour dans le VM
                 // -> ici, on met à jour la liste dans l'adapter
-                taskList = newList
-                adapter.refreshAdapter(taskList)
+                adapter.refreshAdapter(newList)
             }
         }
     }
@@ -100,13 +93,20 @@ class TaskListFragment : Fragment() {
         super.onResume()
 
         val userTextView = view?.findViewById<TextView>(R.id.user_name)
+        val userImageView = view?.findViewById<ImageView>(R.id.user_picture)
 
         lifecycleScope.launch {
             // Ici on ne va pas gérer les cas d'erreur donc on force le crash avec "!!"
             val user = Api.userWebService.fetchUser().body()!!
 
-            if (userTextView != null) {
-                userTextView.text = user.name
+            userTextView?.text = user.name
+
+            userImageView?.load(user.avatar) {
+                error(R.drawable.ic_launcher_background) // image par défaut en cas d'erreur
+            }
+            userImageView?.setOnClickListener {
+                val intent = Intent(context, UserActivity::class.java)
+                startActivity(intent)
             }
         }
 
