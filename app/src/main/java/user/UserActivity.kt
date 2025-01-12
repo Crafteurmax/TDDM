@@ -28,6 +28,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -49,10 +50,11 @@ class UserActivity : ComponentActivity() {
         enableEdgeToEdge()
         userViewModel.fetchUser()
         setContent {
-            var uri: Uri? by remember { mutableStateOf(null) }
             val context = LocalContext.current
 
             val user by userViewModel.user.collectAsState()
+            var uri: Uri? by remember { mutableStateOf(user.avatar?.let { Uri.parse(it) }) }
+
 
             val takePicture = rememberLauncherForActivityResult(TakePicture()) { success ->
                 if (success && captureUri != null) {
@@ -77,6 +79,10 @@ class UserActivity : ComponentActivity() {
                 } else {
                     showMessage("Permission denied")
                 }
+            }
+
+            LaunchedEffect(user.avatar) {
+                uri = user.avatar?.let { Uri.parse(it) }
             }
 
             Column {
