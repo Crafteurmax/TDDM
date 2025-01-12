@@ -4,8 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import data.Api.userWebService
-import data.Commands
+import data.Command
 import data.User
+import data.UserUpdate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
@@ -34,24 +35,21 @@ class UserViewModel : ViewModel(){
         }
     }
 
-    fun editUserName(newUsername : String) {
-
-        println(newUsername)
-
+    fun editUserName(newUserName : String) {
         viewModelScope.launch {
-            val command = Commands(
+            user.value = user.value.copy(name = newUserName)
+
+            val command = Command(
                 type = "user_update",
                 uuid = UUID.randomUUID().toString(),
-                args = mapOf("name" to newUsername)
+                args = mapOf("full_name" to newUserName)
             )
 
-            val response = webService.update(listOf(command))
+            val response = webService.update(UserUpdate(commands = listOf(command)))
             if (!response.isSuccessful) {
                 Log.e("Network", "Error: ${response.message()}")
                 return@launch
             }
-
-            //user.value = user.value.copy(name = newUsername)
         }
     }
 
